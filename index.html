@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相談ノートブック - 判例・論点整理ツール</title>
+    <!-- Google Fonts: Noto Sans JP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            700: '#1a365d', // Primary Navy
+                            800: '#152c4e',
+                            900: '#0f203c',
+                        },
+                        legal: {
+                            gray: '#f8fafc',
+                            border: '#e2e8f0',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans JP"', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #f1f5f9; }
+        textarea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        textarea { transition: border-color 0.2s, box-shadow 0.2s; }
+        
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* Details/Summary animation enhancement */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] summary ~ * { animation: sweep .3s ease-in-out; }
+        @keyframes sweep {
+            0%    {opacity: 0; transform: translateY(-10px)}
+            100%  {opacity: 1; transform: translateY(0)}
+        }
+
+        .recording-active {
+            color: #ef4444 !important;
+            border-color: #ef4444 !important;
+            background-color: #fee2e2 !important;
+        }
+    </style>
+</head>
+<body class="bg-navy-50 text-slate-700 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-navy-700 text-white py-4 shadow-md sticky top-0 z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                </svg>
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide">相談ノートブック</h1>
+                    <p class="text-xs text-slate-300 font-normal">業務効率化・思考整理プラットフォーム</p>
+                </div>
+            </div>
+            <button id="clearAllBtn" class="text-xs text-slate-300 hover:text-white transition underline decoration-dotted flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                全てクリア
+            </button>
+        </div>
+    </header>
+
+    <!-- Usage Guide -->
+    <div class="bg-white border-b border-legal-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <details class="group py-2">
+                <summary class="flex items-center cursor-pointer text-sm text-navy-700 font-medium hover:text-navy-800 focus:outline-none py-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-500 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                    初めての方へ：このアプリの目的・使い方
+                </summary>
+                <div class="pb-4 pl-9 pr-4 text-sm text-slate-600 space-y-3 border-t border-slate-100 mt-2 pt-3">
+                    <div>
+                        <h3 class="font-bold text-navy-800 mb-1">📌 アプリの目的</h3>
+                        <p class="text-xs leading-relaxed">
+                            法務相談の内容、調査した判例、今後の対応方針を1画面で整理するためのツールです。<br>
+                            「情報を集めるだけ」で終わらせず、事案の全体像を俯瞰し、次のアクション（書面作成・交渉・外部ツール活用）につなげることを目的としています。
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-navy-800 mb-1">🛠️ 基本的な使い方</h3>
+                        <ul class="list-disc list-inside text-xs leading-relaxed space-y-1">
+                            <li><strong>Step 1 入力：</strong> 3つのカラム（相談・判例・方針）に入力します。音声入力やPDFの添付も可能です。</li>
+                            <li><strong>Step 2 整理：</strong> 横並びの情報を俯瞰しながら、論点や証拠の整合性をチェックします。</li>
+                            <li><strong>Step 3 出力：</strong> 画面下の「整理内容を統合出力」ボタンを押すと、各項目の内容が1つのテキストに整形されます。</li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Grid Layout: 3 Columns -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
+
+            <!-- Column 1: Consultation & Issues -->
+            <section class="flex flex-col h-full bg-white rounded-lg shadow-sm border border-legal-border overflow-hidden">
+                <div class="p-4 border-b border-legal-border bg-slate-50 flex flex-col space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-navy-700 text-white text-xs font-bold px-2 py-1 rounded">1</span>
+                        <h2 class="font-bold text-navy-800">相談内容・論点メモ</h2>
+                    </div>
+                    <!-- Template Selector -->
+                    <select onchange="insertTemplate('consultation', this.value); this.value='';" class="w-full text-xs border-slate-300 rounded border bg-white py-1.5 px-3 text-slate-600 focus:border-navy-700 focus:outline-none cursor-pointer hover:bg-slate-50 transition">
+                        <option value="" disabled selected>▼ よくある相談雛形を挿入</option>
+                        <option value="debt">1. 債権回収（貸金・売掛金）</option>
+                        <option value="divorce">2. 離婚・男女問題</option>
+                        <option value="realestate">3. 不動産（賃貸・明渡し）</option>
+                        <option value="labor">4. 労働（解雇・残業代）</option>
+                        <option value="inheritance">5. 相続・遺言</option>
+                    </select>
+                </div>
+                <div class="flex-grow flex flex-col p-0 relative group">
+                    <textarea id="consultation" 
+                        class="w-full h-96 md:h-[60vh] p-4 text-sm leading-relaxed text-slate-800 outline-none resize-none placeholder-slate-400 pb-20"
+                        placeholder="・相談の概要&#13;&#10;・争点になりそうなポイント&#13;&#10;・気になるキーワード..."></textarea>
+                    
+                    <!-- File List Container -->
+                    <div id="file-list-consultation" class="absolute bottom-4 left-4 right-20 flex flex-wrap gap-2 pointer-events-none">
+                        <!-- Attached files will appear here -->
+                    </div>
+
+                    <!-- Tools Wrapper -->
+                    <div class="absolute bottom-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition z-10">
+                        <!-- Attach File Button -->
+                        <button onclick="triggerFileSelect('consultation')" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="PDF/画像添付">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                        </button>
+                        <input type="file" id="file-input-consultation" class="hidden" accept=".pdf,image/*" onchange="handleFileSelect(this, 'consultation')">
+
+                        <!-- Mic Button -->
+                        <button onclick="toggleSpeech('consultation', this)" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="音声入力">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                        </button>
+                        <!-- Copy Button -->
+                        <button onclick="copyText('consultation', this)" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="コピー">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Column 2: Precedents & References -->
+            <section class="flex flex-col h-full bg-white rounded-lg shadow-sm border border-legal-border overflow-hidden">
+                <div class="p-4 border-b border-legal-border bg-slate-50 flex flex-col space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-navy-700 text-white text-xs font-bold px-2 py-1 rounded">2</span>
+                        <h2 class="font-bold text-navy-800">関連判例・参考情報</h2>
+                    </div>
+                    <!-- Template Selector -->
+                    <select onchange="insertTemplate('precedents', this.value); this.value='';" class="w-full text-xs border-slate-300 rounded border bg-white py-1.5 px-3 text-slate-600 focus:border-navy-700 focus:outline-none cursor-pointer hover:bg-slate-50 transition">
+                        <option value="" disabled selected>▼ 調査・検討フレームを挿入</option>
+                        <option value="requirements">1. 要件事実の整理</option>
+                        <option value="keywords">2. 類似判例検索ワード</option>
+                        <option value="timeline">3. 時効・期間制限チェック</option>
+                        <option value="evidence">4. 証拠一覧（書証・人証）</option>
+                        <option value="risk">5. リスク・争点整理</option>
+                    </select>
+                </div>
+                <div class="flex-grow flex flex-col p-0 relative group">
+                    <textarea id="precedents" 
+                        class="w-full h-96 md:h-[60vh] p-4 text-sm leading-relaxed text-slate-800 outline-none resize-none placeholder-slate-400 pb-20"
+                        placeholder="・判例の要旨&#13;&#10;・裁判所名／年月日&#13;&#10;・ポイントになった判断理由..."></textarea>
+                    
+                    <!-- File List Container -->
+                    <div id="file-list-precedents" class="absolute bottom-4 left-4 right-20 flex flex-wrap gap-2 pointer-events-none"></div>
+
+                    <!-- Tools Wrapper -->
+                    <div class="absolute bottom-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition z-10">
+                        <!-- Attach File Button -->
+                        <button onclick="triggerFileSelect('precedents')" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="PDF/画像添付">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                        </button>
+                        <input type="file" id="file-input-precedents" class="hidden" accept=".pdf,image/*" onchange="handleFileSelect(this, 'precedents')">
+
+                        <!-- Mic Button -->
+                        <button onclick="toggleSpeech('precedents', this)" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="音声入力">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                        </button>
+                        <!-- Copy Button -->
+                        <button onclick="copyText('precedents', this)" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="コピー">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Column 3: Next Actions -->
+            <section class="flex flex-col h-full bg-white rounded-lg shadow-sm border border-legal-border overflow-hidden">
+                <div class="p-4 border-b border-legal-border bg-slate-50 flex flex-col space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-navy-700 text-white text-xs font-bold px-2 py-1 rounded">3</span>
+                        <h2 class="font-bold text-navy-800">次の提案・対応方針</h2>
+                    </div>
+                    <!-- Template Selector -->
+                    <select onchange="insertTemplate('actions', this.value); this.value='';" class="w-full text-xs border-slate-300 rounded border bg-white py-1.5 px-3 text-slate-600 focus:border-navy-700 focus:outline-none cursor-pointer hover:bg-slate-50 transition">
+                        <option value="" disabled selected>▼ 対応・アクション案を挿入</option>
+                        <option value="notice">1. 内容証明郵便の送付</option>
+                        <option value="negotiation">2. 交渉・示談の提案</option>
+                        <option value="mediation">3. 調停・ADR申立て</option>
+                        <option value="litigation">4. 訴訟提起・保全</option>
+                        <option value="decline">5. 受任見送り・継続相談</option>
+                    </select>
+                </div>
+                <div class="flex-grow flex flex-col p-0 relative group">
+                    <textarea id="actions" 
+                        class="w-full h-96 md:h-[60vh] p-4 text-sm leading-relaxed text-slate-800 outline-none resize-none placeholder-slate-400 pb-20"
+                        placeholder="・依頼者への説明方針&#13;&#10;・追加で確認すべき点&#13;&#10;・見積・契約・次回打合せの方向性..."></textarea>
+                    
+                    <!-- File List Container -->
+                    <div id="file-list-actions" class="absolute bottom-4 left-4 right-20 flex flex-wrap gap-2 pointer-events-none"></div>
+
+                    <!-- Tools Wrapper -->
+                    <div class="absolute bottom-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition z-10">
+                        <!-- Attach File Button -->
+                        <button onclick="triggerFileSelect('actions')" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="PDF/画像添付">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                        </button>
+                        <input type="file" id="file-input-actions" class="hidden" accept=".pdf,image/*" onchange="handleFileSelect(this, 'actions')">
+
+                        <!-- Mic Button -->
+                        <button onclick="toggleSpeech('actions', this)" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="音声入力">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                        </button>
+                        <!-- Copy Button -->
+                        <button onclick="copyText('actions', this)" class="bg-white border border-slate-200 shadow-sm p-2 rounded-full text-slate-500 hover:text-navy-700 hover:border-navy-700 transition" title="コピー">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Summary Output Section -->
+        <div class="mt-8 bg-navy-50 border-t-2 border-slate-200 pt-8">
+            <div class="flex flex-col items-center">
+                <button onclick="generateSummary()" class="group bg-navy-700 hover:bg-navy-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all transform hover:-translate-y-1 flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-200 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>整理内容を統合出力</span>
+                </button>
+                <p class="mt-2 text-xs text-slate-500">3カラムの内容を統合・整形し、クリップボード貼り付け用に生成します</p>
+            </div>
+
+            <!-- Output Area -->
+            <div id="outputContainer" class="mt-6 max-w-4xl mx-auto hidden">
+                <div class="bg-white rounded-lg shadow border border-indigo-100 overflow-hidden">
+                    <div class="bg-indigo-50 px-4 py-2 border-b border-indigo-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-navy-700">出力プレビュー（コピー用）</span>
+                        <button onclick="copyText('summaryOutput', this)" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center space-x-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            <span>コピー</span>
+                        </button>
+                    </div>
+                    <textarea id="summaryOutput" class="w-full h-48 p-4 text-sm font-mono text-slate-700 bg-white outline-none resize-y" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-xs text-slate-400 mb-2">
+                本ツールはブラウザ上で動作し、入力内容はサーバーに送信されません。ページを閉じると内容はリセットされます。
+            </p>
+            <p class="text-[10px] text-slate-400">テスト版（ベータ版） © 2026 SPC</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Templates Definitions ---
+        const TEMPLATES = {
+            debt: "【相談種別】債権回収\n【債権の種類】売掛金・貸金\n【契約書の有無】あり・なし\n【相手方の対応】音信不通・支払意思あり・資力不明\n【希望する解決】早期回収・分割払いでも可・強硬手段辞さず\n\n【詳細な事実経緯】\n",
+            divorce: "【相談種別】離婚・男女問題\n【当事者属性】婚姻年数○年・子○人（○歳）\n【主な争点】親権・養育費・財産分与・慰謝料・年金分割\n【相手方の態度】離婚拒否・条件次第・モラハラ気味\n【別居の有無】別居中（期間○ヶ月）\n\n【詳細な相談内容】\n",
+            realestate: "【相談種別】不動産（賃貸・明渡し）\n【物件概要】居住用・事業用（月額賃料○万円）\n【滞納期間】○ヶ月分\n【信頼関係破壊】用法遵守違反・騒音・無断転貸\n【契約解除通知】未送付・送付済み\n\n【詳細な事実関係】\n",
+            labor: "【相談種別】労働トラブル\n【立場】企業側・労働者側\n【問題】不当解雇・残業代未払い・パワハラ・懲戒処分\n【就業規則】あり・なし\n【証拠】タイムカード・メール・録音\n\n【詳細な経緯】\n",
+            inheritance: "【相談種別】相続・遺言\n【被相続人】死亡日：○年○月○日\n【相続人】配偶者、子○名\n【遺産内容】不動産、預貯金（約○万円）、株式\n【遺言書の有無】自筆証書・公正証書・なし\n【争点】遺産分割協議・寄与分・特別受益・遺留分\n\n【詳細な相談内容】\n",
+            requirements: "【要件事実の整理】\n1. 請求原因事実：\n   ・\n   ・\n2. 抗弁事実：\n   ・\n   ・\n3. 再抗弁：\n   ・\n",
+            keywords: "【検索キーワード候補】\n・主語：\n・行為：\n・法的評価：\n・類似判例の判断枠組み：\n",
+            timeline: "【時効・期間制限チェック】\n・権利行使可能日：\n・消滅時効完成日：\n・除斥期間：\n・時効更新措置の有無：\n",
+            evidence: "【証拠一覧】\n[書証]\n・甲1号証：\n・甲2号証：\n\n[人証]\n・証人：\n・陳述書：\n",
+            risk: "【リスク・争点整理】\n・当方の弱点：\n・相手方の予想される反論：\n・認容される可能性（勝訴見込み）：○％程度\n・コスト倒れのリスク：\n",
+            notice: "【対応方針】内容証明郵便の送付\n・送付期限：\n・通知書の主旨：契約解除・支払催告\n・回答期限の設定：本書面到達後○日以内\n・発送後の予定：回答がなければ訴訟準備\n",
+            negotiation: "【対応方針】交渉・示談提案\n・提示条件：\n・譲歩可能なライン（ボトムライン）：\n・解決金の目安：\n・合意書案の作成要否：\n",
+            mediation: "【対応方針】調停・ADR申立て\n・申立先：○簡易裁判所・弁護士会ADR\n・申立ての趣旨：\n・想定される期間：\n",
+            litigation: "【対応方針】訴訟提起・保全\n・管轄裁判所：\n・訴額：\n・印紙代予納郵券：\n・仮差押えの必要性：あり（対象財産：）\n",
+            decline: "【対応方針】受任見送り・継続相談\n・理由：勝訴見込み薄・費用対効果・利益相反\n・依頼者へのアドバイス：\n・法テラスの案内：\n"
+        };
+
+        function insertTemplate(targetId, templateKey) {
+            if (!templateKey || !TEMPLATES[templateKey]) return;
+            const textarea = document.getElementById(targetId);
+            const templateText = TEMPLATES[templateKey];
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const currentValue = textarea.value;
+            const newValue = currentValue.substring(0, startPos) + templateText + currentValue.substring(endPos, currentValue.length);
+            textarea.value = newValue;
+            textarea.selectionStart = startPos + templateText.length;
+            textarea.selectionEnd = startPos + templateText.length;
+            textarea.focus();
+        }
+
+        // --- File Attachment Logic ---
+        function triggerFileSelect(columnId) {
+            document.getElementById(`file-input-${columnId}`).click();
+        }
+
+        function handleFileSelect(input, columnId) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileUrl = URL.createObjectURL(file);
+                
+                // Create Chip Element
+                const chip = document.createElement('div');
+                chip.className = "bg-navy-100 text-navy-800 text-xs px-2 py-1 rounded-full flex items-center space-x-1 shadow-sm pointer-events-auto cursor-pointer hover:bg-navy-200 transition border border-navy-200";
+                chip.onclick = () => window.open(fileUrl, '_blank');
+                
+                // Icon based on type
+                let iconPath = "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"; // Default file
+                if (file.type.includes('image')) {
+                    iconPath = "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z";
+                }
+
+                chip.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}" />
+                    </svg>
+                    <span class="max-w-[100px] truncate">${file.name}</span>
+                `;
+                
+                document.getElementById(`file-list-${columnId}`).appendChild(chip);
+                
+                // Clear input to allow re-selecting same file
+                input.value = '';
+            }
+        }
+
+        // --- Speech Recognition Logic ---
+        let recognition = null;
+        let currentTargetId = null;
+
+        function toggleSpeech(targetId, btnElement) {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("お使いのブラウザは音声入力に対応していません。\nChrome, Edge, Safari等をご利用ください。");
+                return;
+            }
+
+            if (recognition && currentTargetId === targetId) {
+                recognition.stop();
+                return;
+            }
+            if (recognition) {
+                recognition.stop();
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ja-JP';
+            recognition.interimResults = false;
+            recognition.continuous = false; 
+
+            currentTargetId = targetId;
+
+            recognition.onstart = function() {
+                btnElement.classList.add('recording-active', 'animate-pulse-fast');
+                document.getElementById(targetId).placeholder = "聞いています...";
+            };
+
+            recognition.onend = function() {
+                resetMicUI(btnElement, targetId);
+                recognition = null;
+                currentTargetId = null;
+            };
+
+            recognition.onresult = function(event) {
+                const result = event.results[0][0].transcript;
+                const textarea = document.getElementById(targetId);
+                if (textarea.value && !textarea.value.endsWith('\n')) {
+                     textarea.value += '\n';
+                }
+                textarea.value += result;
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech error", event.error);
+                resetMicUI(btnElement, targetId);
+                if (event.error === 'not-allowed') {
+                    alert("マイクの使用が許可されていません。");
+                }
+            };
+
+            recognition.start();
+        }
+
+        function resetMicUI(btn, targetId) {
+            if(btn) btn.classList.remove('recording-active', 'animate-pulse-fast');
+            // Restore simplified placeholders
+            if (targetId === 'consultation') document.getElementById(targetId).placeholder = "・相談の概要...";
+            if (targetId === 'precedents') document.getElementById(targetId).placeholder = "・判例の要旨...";
+            if (targetId === 'actions') document.getElementById(targetId).placeholder = "・依頼者への説明方針...";
+        }
+
+        // --- Copy & Generate Logic ---
+        function copyText(elementId, btnElement) {
+            const textarea = document.getElementById(elementId);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999); 
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textarea.value).then(() => showCopyFeedback(btnElement))
+                .catch(() => fallbackCopyText(textarea, btnElement));
+            } else {
+                fallbackCopyText(textarea, btnElement);
+            }
+        }
+
+        function fallbackCopyText(textarea, btnElement) {
+            try {
+                document.execCommand('copy');
+                showCopyFeedback(btnElement);
+            } catch (err) {
+                alert('コピーに失敗しました。');
+            }
+        }
+
+        function showCopyFeedback(btnElement) {
+            const originalContent = btnElement.innerHTML;
+            btnElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
+            setTimeout(() => btnElement.innerHTML = originalContent, 2000);
+        }
+
+        function generateSummary() {
+            const consultation = document.getElementById('consultation').value.trim();
+            const precedents = document.getElementById('precedents').value.trim();
+            const actions = document.getElementById('actions').value.trim();
+            
+            const formattedText = `【案件整理サマリー】以下の通り情報を整理しました。\n\n【相談内容・論点】\n${consultation || "（特になし）"}\n\n【関連判例・参考情報】\n${precedents || "（特になし）"}\n\n【現在考えている次のアクション・対応方針】\n${actions || "（特になし）"}`;
+            
+            const outputContainer = document.getElementById('outputContainer');
+            const outputTextarea = document.getElementById('summaryOutput');
+            outputTextarea.value = formattedText;
+            outputContainer.classList.remove('hidden');
+            outputContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // --- Clear Functionality ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const clearBtn = document.getElementById('clearAllBtn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    if(window.confirm("【警告】\n入力中の内容をすべて消去しますか？")) {
+                        document.querySelectorAll('textarea').forEach(t => t.value = '');
+                        document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+                        document.getElementById('outputContainer').classList.add('hidden');
+                        // Clear attached files visualization
+                        document.getElementById('file-list-consultation').innerHTML = '';
+                        document.getElementById('file-list-precedents').innerHTML = '';
+                        document.getElementById('file-list-actions').innerHTML = '';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
